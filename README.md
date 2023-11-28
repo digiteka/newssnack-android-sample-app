@@ -1,0 +1,1 @@
+# newssnack-android-sample-app
