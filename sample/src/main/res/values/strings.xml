@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">NewsSnack</string>
+    <string name="sampleItem_open_example">Open example</string>
+</resources>
