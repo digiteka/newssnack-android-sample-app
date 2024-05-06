@@ -1,10 +1,9 @@
-# Application de démonstration du SDK VideoFeed de Digiteka
+# Librairie VideoFeed de Digiteka
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](ReadMe.md)
 [![fr](https://img.shields.io/badge/lang-fr-blue.svg)](ReadMe.fr.md)
 
-Cette application de démonstration montre comment intégrer et utiliser la librairie NewsSnack de Digiteka.
-La librairie NewsSnack de Digiteka fourni un composant interactif pour afficher des listes de contenus médias, organisés par catégories.
+La librairie VideoFeed de Digiteka fourni un composant interactif pour afficher des listes de contenus médias, organisés par catégories.
 
 # Installation
 
@@ -14,7 +13,20 @@ Ajouter la dépendance à votre fichier `build.gradle`:
 dependencies {    
   implementation("com.digiteka.android:newssnack:1.0.0")
 }   
-```   
+```
+
+Et ajouter le token d'accès jitpack à votre projet dans votre fichier `settings.gradle.kt` :
+
+``` kotlin
+dependencyResolutionManagement {
+    maven{
+        url = uri("https://jitpack.io")
+        credentials {
+            username = "your_digiteka_jitpack_access_token_here"
+        }
+    }
+}
+```
 
 # Utilisation
 
@@ -24,8 +36,8 @@ Dans la méthode `onCreate` de votre classe `Application`, si vous n'en avez pas
 //Créer la configuration DTKNSConfig 
 val dtknsConfig: DTKNSConfig = DTKNSConfig.Builder(mdtk = "my_mdtk_key_here")    
   .build() 
-//Puis initialiser la librairie NewsSnack 
-NewsSnack.initialize(applicationContext = this, config = dtknsConfig)   
+//Puis initialiser la librairie VideoFeed 
+VideoFeed.initialize(applicationContext = this, config = dtknsConfig)   
 ```
 
 ## Logger
@@ -50,7 +62,7 @@ object MyLogger : DTKNSLogger {
 Puis passer le logger à la librairie :
 
 ``` kotlin  
-NewsSnack.setLogger(logger = MyLogger)   
+VideoFeed.setLogger(logger = MyLogger)   
 ```   
 
 ## Tracking
@@ -71,7 +83,7 @@ object MyTracker: DTKNSTracker {
 Puis passer le tracker à la librairie :
 
 ``` kotlin
-NewsSnack.setTracker(tracker = MyTracker)
+VideoFeed.setTracker(tracker = MyTracker)
 ```
 
 ## Afficher le NewsSnackFragment
@@ -104,6 +116,13 @@ val uiConfig: DTKNSUiConfig = DTKNSUiConfig.Builder()
   .setPauseIcon(R.drawable.ic_vm_pause) // Définit l'icône pause pour le lecteur video.
   .setTitleFont(R.font.source_serif) // Définit la police d'écriture pour le titre du panneau d'information.
   .setDescriptionFont(R.font.arial) // Défini la police d'écriture pour la description du panneau d'information et les puces de catégories.
+  	.setDeactivateAds(false) // Désactive les emplacements publicitaires (les vues de repli sont également désactivées).
+	.setTagParams { zoneName, adId -> // Définit les tagParams pour un zoneName et adId donné.
+        mapOf(
+            "category" to "$zoneName _ $adId",
+            "sub_category" to "news"
+        )
+    }
   .build()   
  
 // Puis passer la configuration à l'instance du NewsSnackFragment affichée
@@ -112,13 +131,55 @@ findViewById<FragmentContainerView>(R.id.vingtMinutesFragmentContainerView)
   .setUiConfig(uiConfig)   
 ```   
 
+### Personnaliser la vue de repli
+
+VideoFeed fourni une interface `DTKNSViewInjector` permettant d'injecter une vue de repli lorsqu'un emplacement publicitaire n'a pas de publicité à afficher .
+En cas d'erreur de chargement d'une publicité, la vue de repli n'est pas utilisée.
+
+``` kotlin
+class SampleInjector : DTKNSViewInjector {
+
+	override fun hasViewAvailable(placement: FallbackPlacementEntity): Boolean {
+		Log.i("SampleInjector", "hasViewAvailable - placement: $placement")
+		return true
+	}
+
+	override fun buildView(placement: FallbackPlacementEntity, parent: ViewGroup): View? {
+		val binding = SampleFallbackViewBinding.inflate(LayoutInflater.from(parent.context))
+		return binding.root
+	}
+
+	override fun onViewCreated(view: View) {
+		Log.i("SampleInjector", "onViewCreated - view: $view")
+	}
+
+	override fun onViewDestroyed(view: View) {
+		Log.i("SampleInjector", "onViewDestroyed - view: $view")
+	}
+
+	override fun onViewVisibilityChanged(view: View, isVisible: Boolean) {
+		Log.i("SampleInjector", "onViewVisibilityChanged - view: $view, isVisible: $isVisible")
+	}
+}
+
+```
+
+Puis il suffit de passer l'injecteur au `VideoFeedFragment`:
+
+``` kotlin
+findViewById<FragmentContainerView>(R.id.vingtMinutesFragmentContainerView)
+	.getFragment<VideoFeedFragment>()
+	.setInjector(SampleInjector())
+
+```
+
 ## Erreurs et Logs
 
 | Type          | Code d'erreur | Niveau   | Message                                                                                                                                    | Cause                                                                                                                                             |
 |---------------|---------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | Configuration | DTKNS_CONF_1  | Critical | Mdtk must not be null, empty or blank. Please provide a valid Api Key.                                                                     | mdtk nul ou vide                                                                                                                                  |  
 | Configuration | DTKNS_CONF_2  | Error    | No data were provided for your Api key (mdtk), please check your Api Key is valid, and you do provide data for it in the digiteka console. | Le tableau data est vide ou aucune zone ne contient de vidéo                                                                                      |  
-| Configuration | DTKNS_CONF_3  | Error    | NewsSnack sdk has not yet been initialized. Please call `NewsSnack.initialize` first.                                                      | NewSnack.shared.initialize ou NewsSnack.initialize n'ont pas encore été appelé                                                                    |  
+| Configuration | DTKNS_CONF_3  | Error    | VideoFeed sdk has not yet been initialized. Please call `VideoFeed.initialize` first.                                                      | NewSnack.shared.initialize ou VideoFeed.initialize n'ont pas encore été appelé                                                                    |  
 | Configuration | DTKNS_CONF_4  | Warning  | No video available in zone                                                                                                                 | Aucune vidéo disponible dans la zone                                                                                                              |  
 | Network       |               | Info     | Network connection re-established                                                                                                          | La connexion au réseau a été \(r\)établie                                                                                                         |  
 | Network       | DTKNS_NET_1   | Warning  | Network connection lost.                                                                                                                   | La connexion au réseau a été perdue                                                                                                               |  
@@ -131,9 +192,5 @@ findViewById<FragmentContainerView>(R.id.vingtMinutesFragmentContainerView)
 # Application de démonstration
 
 Vous pouvez tester l'application de démonstration en utilisant le mdtk : `01472001`.
-
-Pour ce faire, ajoutez votre mdtk et votre auth token jitpack digiteka au fichier `local.properties` du projet comme suit :    
-``` properties
-DIGITEKA_VIDEOFEED_MDTK=01472001
-DIGITEKA_VIDEOFEED_SECRET=your_digiteka_jitpack_auth_token_here
-```
+Pour ce faire, ajoutez votre mdtk à la propriété `local.properties` du projet comme suit :    
+```DIGITEKA_VIDEOFEED_MDTK=01472001```

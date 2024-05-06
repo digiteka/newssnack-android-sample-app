@@ -1,7 +1,7 @@
 package digiteka.videofeed.andro.logic.tracking
 
-import com.digiteka.newssnack.logic.tracking.DTKNSTracker
-import com.digiteka.newssnack.logic.tracking.TrackingEvent
+import com.digiteka.videofeed.logic.tracking.DTKNSTracker
+import com.digiteka.videofeed.logic.tracking.TrackingEvent
 
 object MyTracker: DTKNSTracker {
 	override fun trackEvent(event: TrackingEvent) {

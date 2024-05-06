@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NewsSnack</string>
     <string name="sampleItem_open_example">Open example</string>
+    <string name="fallback_msg">This is a fallback view</string>
 </resources>

@@ -1,7 +1,7 @@
 package digiteka.videofeed.andro.logic.log
 
 import android.util.Log
-import com.digiteka.newssnack.core.log.DTKNSLogger
+import com.digiteka.videofeed.core.log.DTKNSLogger
 
 object MyLogger : DTKNSLogger {
 

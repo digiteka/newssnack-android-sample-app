@@ -5,7 +5,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/vingtMinutesFragmentContainerView"
-        android:name="com.digiteka.newssnack.ui.NewsSnackFragment"
+        android:name="com.digiteka.videofeed.ui.VideoFeedFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

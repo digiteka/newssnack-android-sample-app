@@ -10,8 +10,8 @@ plugins {
 }
 
 val versionMajor = 1
-val versionMinor = 0
-val versionPatch = 3
+val versionMinor = 1
+val versionPatch = 0
 val versionBuild = 0
 
 fun generateVersionCode() = versionMajor * 1_000_000 + versionMinor * 10_000 + versionPatch * 100 + versionBuild
@@ -51,7 +51,7 @@ android {
 		versionName = generateVersionName()
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-		buildConfigField("String", "DIGITEKA_NEWSSNACK_MDTK", "\"${localProperties.getProperty("DIGITEKA_NEWSSNACK_MDTK")}\"")
+		buildConfigField("String", "DIGITEKA_VIDEOFEED_MDTK", "\"${localProperties.getProperty("DIGITEKA_VIDEOFEED_MDTK")}\"")
 	}
 
 	buildTypes {
@@ -79,14 +79,11 @@ android {
 
 dependencies {
 
-	implementation("androidx.core:core-ktx:1.12.0")
+	implementation("androidx.core:core-ktx:1.13.1")
 	implementation("androidx.appcompat:appcompat:1.6.1")
 	implementation("com.google.android.material:material:1.11.0")
 	debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
 
-	// ViewModels
-	implementation("androidx.fragment:fragment-ktx:1.6.2")
-
 	//Direct import from project
-	implementation("com.github.digiteka:newssnack-android:1.0.3")
+	implementation("com.github.digiteka:newssnack-android:1.1.0")
 }

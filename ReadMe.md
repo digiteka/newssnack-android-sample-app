@@ -1,10 +1,9 @@
-# Digiteka VideoFeed SDK Sample Application
+# Digiteka VideoFeed SDK
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](ReadMe.md)
 [![fr](https://img.shields.io/badge/lang-fr-blue.svg)](ReadMe.fr.md)
 
-This sample app demonstrates how to integrate and use the Digiteka NewsSnack library.
-Digiteka NewsSnack library provides an interactive view to display lists of media content, sorted by categories.
+Digiteka VideoFeed library provides an interactive view to display lists of media content, sorted by categories.
 
 # Installation
 
@@ -35,10 +34,10 @@ Then in the `onCreate` of your `Application` class, if you don't have one, creat
 
 ``` kotlin  
 //Create the DTKNSConfig 
-val dtknsConfig: DTKNSConfig = DTKNSConfig.Builder(mdtk = "your_mdtk_key_here")    
+val dtknsConfig: DTKNSConfig = DTKNSConfig.Builder(mdtk = "my_mdtk_key_here")    
     .build() 
-//Then initialize the NewsSnack sdk 
-NewsSnack.initialize(applicationContext = this, config = dtknsConfig)   
+//Then initialize the VideoFeed sdk 
+VideoFeed.initialize(applicationContext = this, config = dtknsConfig)   
 ```
 
 ## Logger
@@ -47,7 +46,7 @@ Optionally, you can set a custom logger in order to retrieve logs from the sdk. 
 
 ``` kotlin  
 import android.util.Log 
-import com.digiteka.newssnack.core.log.DTKNSLogger    
+import com.digiteka.videofeed.core.log.DTKNSLogger    
 
 object MyLogger : DTKNSLogger {    
     
@@ -63,7 +62,7 @@ object MyLogger : DTKNSLogger {
 Then pass the logger:
 
 ``` kotlin  
-NewsSnack.setLogger(logger = MyLogger)   
+VideoFeed.setLogger(logger = MyLogger)   
 ```   
 
 ## Tracking
@@ -71,8 +70,8 @@ NewsSnack.setLogger(logger = MyLogger)
 Optionally, you can set a custom tracker in order to track events from the sdk. The tracker must implement the `DTKNSTracker` interface.
 
 ``` kotlin
-import com.digiteka.newssnack.logic.tracking.DTKNSTracker
-import com.digiteka.newssnack.logic.tracking.TrackingEvent
+import com.digiteka.videofeed.logic.tracking.DTKNSTracker
+import com.digiteka.videofeed.logic.tracking.TrackingEvent
 
 object MyTracker: DTKNSTracker {
   override fun trackEvent(event: TrackingEvent) {
@@ -84,30 +83,30 @@ object MyTracker: DTKNSTracker {
 Then pass the tracker:
 
 ``` kotlin
-NewsSnack.setTracker(tracker = MyTracker)
+VideoFeed.setTracker(tracker = MyTracker)
 ```
 
-## Displaying the NewsSnackFragment
+## Displaying the VideoFeedFragment
 
-The NewsSnackFragment extends the android Fragment class, you can manage it like any other fragment.
+The VideoFeedFragment extends the android Fragment class, you can manage it like any other fragment.
 Here, the example is done in the XML view.
 
 ``` xml
 <androidx.fragment.app.FragmentContainerView
     android:id="@+id/defaultUiActivityContainerView"
-    android:name="com.digiteka.newssnack.ui.NewsSnackFragment"
+    android:name="com.digiteka.videofeed.ui.VideoFeedFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />    
 ```
 
 **Recommendations**
 
-- The `NewsSnackFragment` has vertical and horizontal scroll capabilities, thus it's not recommended to put it inside a scrollable view, like a ScrollView or a RecyclerView.
+- The `VideoFeedFragment` has vertical and horizontal scroll capabilities, thus it's not recommended to put it inside a scrollable view, like a ScrollView or a RecyclerView.
 
 ### Customizing the UI
 
-By default, NewsSnackFragment will use system  
-The UI can be customized by passing a `DTKNSUiConfig` instance to the NewsSnackFragment.
+By default, VideoFeedFragment will use system  
+The UI can be customized by passing a `DTKNSUiConfig` instance to the VideoFeedFragment.
 
 ``` kotlin    
 val uiConfig: DTKNSUiConfig = DTKNSUiConfig.Builder()    
@@ -117,13 +116,62 @@ val uiConfig: DTKNSUiConfig = DTKNSUiConfig.Builder()
     .setTitleFont(R.font.source_serif) // Sets the font for the title of the info panel 
     .setZoneFont(R.font.oswald) // Sets the font for the zone tag
     .setDescriptionFont(R.font.arial) // Sets the font for the description in the info panel and the Categories tag's    
+	.setDeactivateAds(false) // Disables the ads and ads fallback
+	.setTagParams { zoneName, adId -> // defines the tagParams for a given zoneName and adId
+        mapOf(
+            "category" to "$zoneName _ $adId",
+            "sub_category" to "news"
+        )
+    }
     .build()    
  
 // Then pass the uiConfig to the fragment 
 findViewById<FragmentContainerView>(R.id.vingtMinutesFragmentContainerView)    
-    .getFragment<NewsSnackFragment>()
+    .getFragment<VideoFeedFragment>()
     .setUiConfig(uiConfig)   
 ```   
+
+### Customizing the ad fallback
+
+VideoFeed provides an interface `DTKNSViewInjector` in order to customize a fallback view when no ad is available for an ad placement.
+The fallback view is not displayed when an error occurs while loading an ad.
+
+``` kotlin
+class SampleInjector : DTKNSViewInjector {
+
+	override fun hasViewAvailable(placement: FallbackPlacementEntity): Boolean {
+		Log.i("SampleInjector", "hasViewAvailable - placement: $placement")
+		return true
+	}
+
+	override fun buildView(placement: FallbackPlacementEntity, parent: ViewGroup): View? {
+		val binding = SampleFallbackViewBinding.inflate(LayoutInflater.from(parent.context))
+		return binding.root
+	}
+
+	override fun onViewCreated(view: View) {
+		Log.i("SampleInjector", "onViewCreated - view: $view")
+	}
+
+	override fun onViewDestroyed(view: View) {
+		Log.i("SampleInjector", "onViewDestroyed - view: $view")
+	}
+
+	override fun onViewVisibilityChanged(view: View, isVisible: Boolean) {
+		Log.i("SampleInjector", "onViewVisibilityChanged - view: $view, isVisible: $isVisible")
+	}
+}
+
+```
+
+Then you just need to provide it to the `VideoFeedFragment`:
+
+``` kotlin
+findViewById<FragmentContainerView>(R.id.vingtMinutesFragmentContainerView)
+	.getFragment<VideoFeedFragment>()
+	.setInjector(SampleInjector())
+
+```
 
 ## Errors and Logs
 
@@ -131,7 +179,7 @@ findViewById<FragmentContainerView>(R.id.vingtMinutesFragmentContainerView)
 |---------------|--------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | Configuration | DTKNS_CONF_1 | Critical | Mdtk must not be null, empty or blank. Please provide a valid Api Key.                                                                     | mdtk is null or empty                                                                                                       |  
 | Configuration | DTKNS_CONF_2 | Error    | No data were provided for your Api key (mdtk), please check your Api Key is valid, and you do provide data for it in the digiteka console. | The mdtk is not valid, or no video has been configured in the digiteka console                                              |  
-| Configuration | DTKNS_CONF_3 | Error    | NewsSnack sdk has not yet been initialized. Please call `NewsSnack.initialize` first.                                                      | `NewsSnack.initialize` has not been called yet                                                                              |  
+| Configuration | DTKNS_CONF_3 | Error    | VideoFeed sdk has not yet been initialized. Please call `VideoFeed.initialize` first.                                                      | `VideoFeed.initialize` has not been called yet                                                                              |  
 | Configuration | DTKNS_CONF_4 | Warning  | No video available in zone                                                                                                                 | No video is available for this zone                                                                                         |  
 | Network       |              | Info     | Network connection re-established                                                                                                          | Network connection was lost and has been re-established                                                                     |  
 | Network       | DTKNS_NET_1  | Warning  | Network connection lost.                                                                                                                   | Lost network connection                                                                                                     |  
@@ -145,8 +193,5 @@ findViewById<FragmentContainerView>(R.id.vingtMinutesFragmentContainerView)
 
 You can test the Sample app using the mdtk : `01472001`.
 
-Add your digiteka videofeed mdtk key and your digiteka jitpack auth token the access to the project's `local.properties` like following:    
-``` properties
-DIGITEKA_VIDEOFEED_MDTK=01472001
-DIGITEKA_VIDEOFEED_SECRET=your_digiteka_jitpack_auth_token_here
-```
+Add your digiteka VideoFeed mdtk key to the project's `local.properties` like following:    
+```DIGITEKA_VIDEOFEED_MDTK=01472001```
