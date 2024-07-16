@@ -21,9 +21,6 @@ Et ajouter le token d'accès jitpack à votre projet dans votre fichier `setting
 dependencyResolutionManagement {
     maven{
         url = uri("https://jitpack.io")
-        credentials {
-            username = "your_digiteka_jitpack_access_token_here"
-        }
     }
 }
 ```

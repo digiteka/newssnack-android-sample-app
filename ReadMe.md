@@ -21,9 +21,6 @@ And add the jitpack repository to your project `settings.gradle.kt` file:
 dependencyResolutionManagement {
     maven{
         url = uri("https://jitpack.io")
-        credentials {
-            username = "your_digiteka_jitpack_access_token_here"
-        }
     }
 }
 ```
