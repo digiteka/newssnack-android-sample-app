@@ -11,7 +11,7 @@ Simply add the dependency to your application `build.gradle` file:
 
 ``` kotlin    
 dependencies {    
-    implementation("com.github.digiteka:newssnack-android:1.0.3")
+    implementation("com.github.digiteka:newssnack-android:1.1.0")
 }   
 ```   
 
